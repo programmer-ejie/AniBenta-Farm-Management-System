@@ -1,27 +1,12 @@
-import { Pool, PoolConfig } from 'pg';
+import { PrismaClient } from '@prisma/client';
 import env from '../utils/validate-env';
 
-const dbConfig: PoolConfig = {
-    host: env.DB_HOST,
-    port: parseInt(env.DB_PORT),
-    user: env.DB_USER,
-    password: env.DB_PASSWORD,
-    database: env.DB_NAME,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-};
-
-const pool = new Pool(dbConfig);
-
-pool.on('error', (err) => {
-    console.error('Unexpected database error:', err);
-});
+const prisma = new PrismaClient();
 
 export const query = async (text: string, params?: any[]) => {
     const start = Date.now();
     try {
-        const result = await pool.query(text, params);
+        const result = await prisma.$queryRawUnsafe(text, ...(params ?? []));
         const duration = Date.now() - start;
         console.log(`✅ Query executed in ${duration}ms`);
         return result;
@@ -32,12 +17,12 @@ export const query = async (text: string, params?: any[]) => {
 };
 
 export const getClient = async () => {
-    return await pool.connect();
+    return prisma;
 };
 
 export const testConnection = async (): Promise<boolean> => {
     try {
-        await pool.query('SELECT 1 + 1 AS result');
+        await prisma.$queryRaw`SELECT 1 + 1 AS result`;
         console.log('✅ Database connection successful!');
         return true;
     } catch (error) {
@@ -47,42 +32,13 @@ export const testConnection = async (): Promise<boolean> => {
 };
 
 export const createDatabaseIfNotExists = async (): Promise<void> => {
-    try {
-        const tempConfig = {
-            host: env.DB_HOST,
-            port: parseInt(env.DB_PORT),
-            user: env.DB_USER,
-            password: env.DB_PASSWORD,
-            database: 'postgres',
-        };
-        
-        const tempPool = new Pool(tempConfig);
-        
-        const result = await tempPool.query(
-            'SELECT 1 FROM pg_database WHERE datname = $1',
-            [env.DB_NAME]
-        );
-        
-        if (result.rows.length === 0) {
-            const dbName = env.DB_NAME;
-            const escapedDbName = `"${dbName.replace(/"/g, '""')}"`;
-            await tempPool.query(`CREATE DATABASE ${escapedDbName};`);
-            console.log(`✅ Database "${dbName}" created successfully.`);
-        } else {
-            console.log(`✅ Database "${env.DB_NAME}" already exists.`);
-        }
-        
-        await tempPool.end();
-    } catch (error) {
-        console.error('❌ Failed to create database:', error);
-        throw error;
-    }
+    console.log('ℹ️ Prisma manages the database connection; no database bootstrap step is required here.');
 };
 
 export const initializeDatabase = async (): Promise<void> => {
     try {
-        await createDatabaseIfNotExists();
-        
+        void env;
+        await prisma.$connect();
         const connected = await testConnection();
         if (!connected) {
             throw new Error('Database connection failed');
@@ -97,11 +53,11 @@ export const initializeDatabase = async (): Promise<void> => {
 
 export const closePool = async (): Promise<void> => {
     try {
-        await pool.end();
-        console.log('📴 Database pool closed.');
+        await prisma.$disconnect();
+        console.log('📴 Prisma client disconnected.');
     } catch (error) {
-        console.error('Error closing database pool:', error);
+        console.error('Error disconnecting Prisma client:', error);
     }
 };
 
-export default pool;
+export default prisma;

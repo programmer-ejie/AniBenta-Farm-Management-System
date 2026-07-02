@@ -11,7 +11,6 @@ const startServer = async () => {
         console.log('🚀 Starting AniBenta Backend...');
         console.log('📡 Connecting to database...');
 
-        // Initialize database connection
         await initializeDatabase();
 
         console.log('✅ Database connected successfully!');
@@ -23,7 +22,7 @@ const startServer = async () => {
         app.listen(PORT, () => {
             console.log(`🚀 Server is running on http://localhost:${PORT}`);
             console.log(`📍 Health check: http://localhost:${PORT}/health`);
-            console.log(`📊 Database: ${process.env.DB_NAME || 'anibenta_db'}`);
+            console.log('📊 Database: Prisma');
         });
     } catch (error) {
         console.error('❌ Failed to start server:', error);

@@ -24,7 +24,7 @@ export const createApp = (): Express => {
             status: 'OK',
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
-            database: 'Connected to PostgreSQL',
+            database: 'Connected to Prisma',
         });
     });
 
@@ -33,7 +33,7 @@ export const createApp = (): Express => {
         res.json({
             message: 'Welcome to AniBenta API',
             version: '1.0.0',
-            status: 'Database connected successfully',
+            status: 'Database connected successfully with Prisma',
         });
     });
 

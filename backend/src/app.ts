@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import userRoutes from "./features/users/users.routes"
 
 dotenv.config();
 
@@ -37,6 +38,9 @@ export const createApp = (): Express => {
         });
     });
 
+    //routes for APIs
+    app.use("/api/user", userRoutes);
+
     // 404 handler - Fixed unused parameters with _
     app.use((_req: Request, res: Response) => {
         res.status(404).json({ error: 'Endpoint not found' });
@@ -47,6 +51,9 @@ export const createApp = (): Express => {
         console.error('❌ Error:', err);
         res.status(500).json({ error: 'Internal server error' });
     });
+
+
+    
 
     return app;
 };

@@ -61,6 +61,18 @@ export const userController = {
             res.status(500).json({error: "Controller: Failed to update user information!"});
         }
 
+    },
+
+
+    async deleteUser(_req:Request, res:Response){
+        try{
+            const userId = parseInt(_req.params.id as string, 10);
+            const deleteUser = await userService.deleteUserInfo(userId);
+            res.status(200).json({success: "Successfully deleted user information!", deleteUser: deleteUser});
+        }catch(err){
+            console.error("Controller: Error deleting user information:", err);
+            res.status(500).json({error: "Controller: Failed to delete user information!"});
+        }
     }
 
 

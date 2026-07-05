@@ -72,6 +72,23 @@ export const userService = {
             console.error("Error updating user information in the database!",err);
             throw new Error("Service: Failed to update user information in the database!");
         }
+    },
+
+    async deleteUserInfo(userId: number): Promise<UserResponseDTO>{
+        try{
+            const existingUser = await prisma .$queryRaw<any[]>`SELECT * FROM "user" WHERE id = ${userId}`;
+
+            if(existingUser.length === 0){
+                throw new Error("Service: User not found!");
+            }else{
+                const deleteUser = await prisma.$queryRaw`DELETE FROM "user" WHERE id = ${userId} RETURNING *`;
+                
+                return deleteUser as UserResponseDTO;
+            }
+        }catch(err){
+            console.error("Error deleting user information from the database!",err);
+            throw new Error("Service: Failed to delete user information from the database!");
+        }
     }
 
 }

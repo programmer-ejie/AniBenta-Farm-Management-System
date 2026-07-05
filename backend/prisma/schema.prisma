@@ -15,10 +15,10 @@ model User {
     mname String?
     lname String
     date_of_birth DateTime
-    address String
+    address String?
     profile_picture_url String?
     created_at DateTime @default(now())
-    update_at DateTime @updatedAt
+    updated_at DateTime @updatedAt
 
-    @@map("users")
+    @@map("user")
 }

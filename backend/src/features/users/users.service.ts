@@ -1,5 +1,5 @@
 import prisma from ".././../config/database";
-import {UserResponseDTO,CreateUserDTO} from "./users.types";
+import {UserResponseDTO,CreateUserDTO,UpdateUserDTO} from "./users.types";
 import bcrypt from "bcrypt";
 
 export const userService = {
@@ -56,6 +56,22 @@ export const userService = {
         console.error("❌ Registration Error:", err);
         throw new Error("Service Error!");
     }
-}
+},
+
+    async updateUserInfo(userId: number, data: Partial<UpdateUserDTO>): Promise<UserResponseDTO> {
+        try{
+            const existingUser = await prisma.$queryRaw<any[]>`SELECT * FROM "user" WHERE id = ${userId}`;
+            if(existingUser.length === 0){
+                throw new Error("Service: User not found!");
+            }else{
+                const updateUser = await prisma.$queryRaw`UPDATE "user" SET email = ${data.email}, fname = ${data.fname}, mname = ${data.mname},lname = ${data.lname}, date_of_birth = ${data.date_of_birth},address = ${data.address},profile_picture_url = ${data.profile_picture_url},updated_at = NOW() WHERE id = ${userId} RETURNING *`;
+
+                return updateUser as UserResponseDTO;
+            }
+        }catch(err){
+            console.error("Error updating user information in the database!",err);
+            throw new Error("Service: Failed to update user information in the database!");
+        }
+    }
 
 }

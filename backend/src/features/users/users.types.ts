@@ -26,7 +26,6 @@ export interface CreateUserDTO{
 export interface UpdateUserDTO{
     id?:number;
     email?:string;
-    password?:string;
     fname?:string;
     mname?:string;
     lname?:string;

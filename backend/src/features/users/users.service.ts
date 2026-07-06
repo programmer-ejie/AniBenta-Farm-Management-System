@@ -1,5 +1,5 @@
 import prisma from ".././../config/database";
-import {UserResponseDTO,CreateUserDTO,UpdateUserDTO} from "./users.types";
+import {UserResponseDTO,CreateUserDTO,UpdateUserDTO,UserLoginDTO} from "./users.types";
 import bcrypt from "bcrypt";
 
 export const userService = {
@@ -93,15 +93,15 @@ export const userService = {
         }
     },
 
-    async loginUser(email:string, password: string): Promise<UserResponseDTO>{
+    async loginUser(loginData: UserLoginDTO): Promise<UserResponseDTO>{
         try{
-            const checkIFUserExist = await prisma.$queryRaw<any[]>`SELECT * FROM "user" WHERE email = ${email}`
+            const checkIFUserExist = await prisma.$queryRaw<any[]>`SELECT * FROM "user" WHERE email = ${loginData.email}`
             
             if(checkIFUserExist.length === 0){
                 throw new Error("Service: User not found!");
             }else{
                 const user = checkIFUserExist[0];
-                const isPasswordValid = await bcrypt.compare(password, user.password);
+                const isPasswordValid = await bcrypt.compare(loginData.password, user.password);
 
                 if(isPasswordValid){
                     const {password, ...userInfoWithoutPassword} = user;

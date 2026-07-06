@@ -1,5 +1,6 @@
 import {Request, Response} from "express";
 import {userService} from "./users.service";
+import { UserLoginDTO } from "./users.types";
 
 
 export const userController = {
@@ -76,9 +77,9 @@ export const userController = {
     },
 
     async loginUser(_req:Request, res:Response){
-        const {email,password} = _req.body;
+        const loginData : UserLoginDTO = _req.body;
         try{
-            const loginUser = await userService.loginUser(email,password);
+            const loginUser = await userService.loginUser(loginData);
             res.status(200).json({success: "Successfully Logged in user account!", loginUser: loginUser})
         }catch(err){
             console.error("Controller: Error Loggin in user:", err);

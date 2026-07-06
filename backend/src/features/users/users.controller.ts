@@ -73,6 +73,17 @@ export const userController = {
             console.error("Controller: Error deleting user information:", err);
             res.status(500).json({error: "Controller: Failed to delete user information!"});
         }
+    },
+
+    async loginUser(_req:Request, res:Response){
+        const {email,password} = _req.body;
+        try{
+            const loginUser = await userService.loginUser(email,password);
+            res.status(200).json({success: "Successfully Logged in user account!", loginUser: loginUser})
+        }catch(err){
+            console.error("Controller: Error Loggin in user:", err);
+            res.status(500).json({error: "Controller: Failed to Login User!"});
+        }
     }
 
 

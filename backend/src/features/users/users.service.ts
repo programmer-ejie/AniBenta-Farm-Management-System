@@ -3,6 +3,8 @@ import {UserResponseDTO,CreateUserDTO,UpdateUserDTO} from "./users.types";
 import bcrypt from "bcrypt";
 
 export const userService = {
+
+    
     async fetchAllUsers(): Promise<UserResponseDTO[]>{
         try{
             const userData = await prisma.$queryRaw`SELECT * FROM "user"`;
@@ -88,6 +90,29 @@ export const userService = {
         }catch(err){
             console.error("Error deleting user information from the database!",err);
             throw new Error("Service: Failed to delete user information from the database!");
+        }
+    },
+
+    async loginUser(email:string, password: string): Promise<UserResponseDTO>{
+        try{
+            const checkIFUserExist = await prisma.$queryRaw<any[]>`SELECT * FROM "user" WHERE email = ${email}`
+            
+            if(checkIFUserExist.length === 0){
+                throw new Error("Service: User not found!");
+            }else{
+                const user = checkIFUserExist[0];
+                const isPasswordValid = await bcrypt.compare(password, user.password);
+
+                if(isPasswordValid){
+                    const {password, ...userInfoWithoutPassword} = user;
+                    return userInfoWithoutPassword as UserResponseDTO;
+                }else{
+                    throw new Error("Service: Invalid password!");
+                }
+            }
+        }catch(err){
+            console.error("Service: Error Logging in user:", err);
+            throw new Error("Service: Failed to logged in user!");
         }
     }
 

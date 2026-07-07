@@ -1,5 +1,9 @@
 {
   "expo": {
+    "scheme": "anibenta-app",
+    "experiments": {
+      "typedRoutes": true
+    },
     "name": "anibenta-app",
     "slug": "anibenta-app",
     "version": "1.0.0",
@@ -24,6 +28,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
